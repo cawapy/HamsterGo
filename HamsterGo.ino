@@ -25,6 +25,7 @@ void setup()
 
 uint32_t revolutionCount = 0;
 uint32_t lastRevolutionTimestampMs = 0;
+uint16_t maxSpeedHundredMetersPerHour = 0;
 void loop()
 {
     bool needUpdate = false;
@@ -43,6 +44,9 @@ void loop()
         hundredMetersPerHour = revolutionDurationMs
             ? (wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters)
             : 0;
+        maxSpeedHundredMetersPerHour = (hundredMetersPerHour > maxSpeedHundredMetersPerHour)
+            ? hundredMetersPerHour
+            : maxSpeedHundredMetersPerHour;
 
         needUpdate = true;
     }
@@ -59,6 +63,8 @@ void loop()
 
         uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
         printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
+
+        printRow(2, "Max-Tempo: %2d.%01d km/h", maxSpeedHundredMetersPerHour / 10, maxSpeedHundredMetersPerHour % 10);
 
         if (hundredMetersPerHour != 0)
         {
