@@ -23,18 +23,20 @@ void setup()
     lcd.print("Hamster, go!");
 }
 
-uint32_t revolutionCount = 0;
-uint32_t lastRevolutionTimestampMs = 0;
-uint16_t maxSpeedHundredMetersPerHour = 0;
 void loop()
 {
+    uint32_t timestampMs = millis() | 1; // nonzero timestamp = valid timestamp
     bool needUpdate = false;
-    uint32_t timestampMs = millis();
 
-    uint16_t hundredMetersPerHour;
-
+    static uint32_t revolutionCount = 0;
+    static uint32_t lastRevolutionTimestampMs = 0;
+    static uint16_t hundredMetersPerHour = 0;
+    static uint16_t maxSpeedHundredMetersPerHour = 0;
+    static uint32_t pauseStartTimestampMs = timestampMs;
     if (detectStep())
     {
+        pauseStartTimestampMs = 0;
+
         revolutionCount++;
 
         uint32_t revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
@@ -51,9 +53,18 @@ void loop()
         needUpdate = true;
     }
 
-    if ((timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
+    if (pauseStartTimestampMs == 0 && (timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
     {
         hundredMetersPerHour = 0;
+        pauseStartTimestampMs = timestampMs;
+        needUpdate = true;
+    }
+
+    static uint32_t secondsTick = 0;
+    uint32_t seconds = timestampMs / 1000ul;
+    if (secondsTick != seconds)
+    {
+        secondsTick = seconds;
         needUpdate = true;
     }
 
@@ -72,7 +83,8 @@ void loop()
         }
         else
         {
-            printRow(3, "                    ");
+            uint16_t pauseSec = (timestampMs - pauseStartTimestampMs) / 1000ul;
+            printRow(3, "Inaktiv: %5d:%02d:%02d", pauseSec / 60 / 60, pauseSec / 60 % 60, pauseSec % 60);
         }
     }
 }
