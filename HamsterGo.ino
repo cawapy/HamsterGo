@@ -20,7 +20,17 @@ void setup()
     lcd.begin();
     lcd.backlight();
     lcd.clear();
-    lcd.print("Hamster, go!");
+    delay(1000);
+    printRow(0, "      Hamster       ");
+    delay(1000);
+    printRow(1, "       G O !        ");
+    delay(1000);
+    printRow(3, "         3          ");
+    delay(1000);
+    printRow(3, "         2          ");
+    delay(1000);
+    printRow(3, "         1          ");
+    delay(1000);
 }
 
 void loop()
