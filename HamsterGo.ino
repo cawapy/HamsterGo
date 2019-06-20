@@ -30,19 +30,26 @@ void loop()
     bool needUpdate = false;
     uint32_t timestampMs = millis();
 
-    uint32_t revolutionDurationMs;
+    uint16_t hundredMetersPerHour;
 
     if (detectStep())
     {
         revolutionCount++;
-        revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
+
+        uint32_t revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
         lastRevolutionTimestampMs = timestampMs;
+        const uint32_t msPerHour = 1000ul * 60ul * 60ul;
+        const uint32_t cmPerHundredMeters = 10000ul;
+        hundredMetersPerHour = revolutionDurationMs
+            ? (wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters)
+            : 0;
+
         needUpdate = true;
     }
 
     if ((timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
     {
-        revolutionDurationMs = 0;
+        hundredMetersPerHour = 0;
         needUpdate = true;
     }
 
@@ -53,11 +60,8 @@ void loop()
         uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
         printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
 
-        if (revolutionDurationMs != 0)
+        if (hundredMetersPerHour != 0)
         {
-            const uint32_t msPerHour = 1000ul * 60ul * 60ul;
-            const uint32_t cmPerHundredMeters = 10000ul;
-            uint16_t hundredMetersPerHour = wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters;
             printRow(3, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
         }
         else
