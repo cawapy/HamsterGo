@@ -12,6 +12,8 @@ const uint8_t lcdI2cAddress = 0x27;
 
 LiquidCrystal_I2C lcd(lcdI2cAddress, lcdColumns, lcdRows);
 
+void printRow(uint8_t rowNumber, const char* format, ...);
+
 void setup()
 {
     pinMode(sensorPin, INPUT);
@@ -46,29 +48,24 @@ void loop()
 
   if (needUpdate)
   {
-    char buff[21];
-    sprintf(buff, "Runden: %12d", revolutionCount);
-    lcd.setCursor(0, 0);
-    lcd.print(buff);
+    printRow(0, "Runden: %12d", revolutionCount);
+
+    uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
+    printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
  
-    lcd.setCursor(0, 3);
-    if (revolutionDurationMs != 0) {
+    if (revolutionDurationMs != 0)
+    {
       const uint32_t msPerHour = 1000ul * 60ul * 60ul;
       const uint32_t cmPerHundredMeters = 10000ul;
       uint16_t hundredMetersPerHour = wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters;
-      sprintf(buff, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
-      lcd.print(buff);
+      printRow(3, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
     }
-    else {
-      lcd.print("Tempo:      0.0 km/h");
+    else
+    {
+      printRow(3, "                    ");
     }
-    uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
-    sprintf(buff, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
-    lcd.setCursor(0, 1);
-    lcd.print(buff);
   }
 }
-
 
 bool current = true;
 bool detectStep()
@@ -77,4 +74,17 @@ bool detectStep()
   current = digitalRead(sensorPin) == HIGH;
   if (current != previous) delay(5);
   return current && !previous;
+}
+
+void printRow(uint8_t rowNumber, const char* format, ...)
+{
+    const size_t bufferSize = lcdColumns + 1;
+    char buffer[bufferSize];
+    va_list arglist;
+    va_start(arglist, format);
+    // vnsprintf(buffer, bufferSize, format, arglist);
+    vsprintf(buffer, format, arglist);
+    va_end(arglist);
+    lcd.setCursor(0, rowNumber);
+    lcd.print(buffer);
 }
