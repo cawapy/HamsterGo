@@ -27,53 +27,53 @@ uint32_t revolutionCount = 0;
 uint32_t lastRevolutionTimestampMs = 0;
 void loop()
 {
-  bool needUpdate = false;
-  uint32_t timestampMs = millis();
+    bool needUpdate = false;
+    uint32_t timestampMs = millis();
 
-  uint32_t revolutionDurationMs;
+    uint32_t revolutionDurationMs;
 
-  if (detectStep())
-  {
-    revolutionCount++;
-    revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
-    lastRevolutionTimestampMs = timestampMs;
-    needUpdate = true;
-  }
-
-  if ((timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
-  {
-    revolutionDurationMs = 0;
-    needUpdate = true;
-  }
-
-  if (needUpdate)
-  {
-    printRow(0, "Runden: %12d", revolutionCount);
-
-    uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
-    printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
- 
-    if (revolutionDurationMs != 0)
+    if (detectStep())
     {
-      const uint32_t msPerHour = 1000ul * 60ul * 60ul;
-      const uint32_t cmPerHundredMeters = 10000ul;
-      uint16_t hundredMetersPerHour = wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters;
-      printRow(3, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
+        revolutionCount++;
+        revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
+        lastRevolutionTimestampMs = timestampMs;
+        needUpdate = true;
     }
-    else
+
+    if ((timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
     {
-      printRow(3, "                    ");
+        revolutionDurationMs = 0;
+        needUpdate = true;
     }
-  }
+
+    if (needUpdate)
+    {
+        printRow(0, "Runden: %12d", revolutionCount);
+
+        uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
+        printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
+
+        if (revolutionDurationMs != 0)
+        {
+            const uint32_t msPerHour = 1000ul * 60ul * 60ul;
+            const uint32_t cmPerHundredMeters = 10000ul;
+            uint16_t hundredMetersPerHour = wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters;
+            printRow(3, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
+        }
+        else
+        {
+            printRow(3, "                    ");
+        }
+    }
 }
 
 bool current = true;
 bool detectStep()
 {  
-  bool previous = current;
-  current = digitalRead(sensorPin) == HIGH;
-  if (current != previous) delay(5);
-  return current && !previous;
+    bool previous = current;
+    current = digitalRead(sensorPin) == HIGH;
+    if (current != previous) delay(5);
+    return current && !previous;
 }
 
 void printRow(uint8_t rowNumber, const char* format, ...)
