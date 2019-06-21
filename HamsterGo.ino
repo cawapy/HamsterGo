@@ -40,8 +40,8 @@ void loop()
 
     static uint32_t revolutionCount = 0;
     static uint32_t lastRevolutionTimestampMs = 0;
-    static uint16_t hundredMetersPerHour = 0;
-    static uint16_t maxSpeedHundredMetersPerHour = 0;
+    static uint16_t speed100mph = 0; // 100mph = 100 meters per hour
+    static uint16_t maxSpeed100mph = 0;
     static uint32_t pauseStartTimestampMs = timestampMs;
     if (detectStep())
     {
@@ -50,19 +50,19 @@ void loop()
         if (pauseStartTimestampMs)
         {
             pauseStartTimestampMs = 0;
-            hundredMetersPerHour = 0;
+            speed100mph = 0;
         }
         else
         {
             uint32_t revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
             const uint32_t msPerHour = 1000ul * 60ul * 60ul;
             const uint32_t cmPerHundredMeters = 10000ul;
-            hundredMetersPerHour = revolutionDurationMs
+            speed100mph = revolutionDurationMs
                 ? (wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters)
                 : 0;
-            maxSpeedHundredMetersPerHour = (hundredMetersPerHour > maxSpeedHundredMetersPerHour)
-                ? hundredMetersPerHour
-                : maxSpeedHundredMetersPerHour;
+            maxSpeed100mph = (speed100mph > maxSpeed100mph)
+                ? speed100mph
+                : maxSpeed100mph;
         }
         lastRevolutionTimestampMs = timestampMs;
 
@@ -71,7 +71,7 @@ void loop()
 
     if (pauseStartTimestampMs == 0 && (timestampMs - lastRevolutionTimestampMs) > speedometerTimeoutMs)
     {
-        hundredMetersPerHour = 0;
+        speed100mph = 0;
         pauseStartTimestampMs = timestampMs;
         needUpdate = true;
     }
@@ -91,11 +91,11 @@ void loop()
         uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
         printRow(1, "Strecke: %6d,%02d m", distanceCm / 100, distanceCm % 100);
 
-        printRow(2, "Max-Tempo: %2d,%01d km/h", maxSpeedHundredMetersPerHour / 10, maxSpeedHundredMetersPerHour % 10);
+        printRow(2, "Max-Tempo: %2d,%01d km/h", maxSpeed100mph / 10, maxSpeed100mph % 10);
 
-        if (hundredMetersPerHour != 0)
+        if (speed100mph != 0)
         {
-            printRow(3, "Tempo:     %2d,%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
+            printRow(3, "Tempo:     %2d,%01d km/h", speed100mph / 10, speed100mph % 10);
         }
         else
         {
