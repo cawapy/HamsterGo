@@ -4,7 +4,7 @@
 const uint8_t wheelCircumferenceCm = 87;
 const uint32_t speedometerTimeoutMs = 5000ul;
 
-const uint8_t wheelMarkSensorPin = 3;
+const uint8_t wheelMarkSensorPin = A3;
 
 const uint8_t lcdColumns = 20;
 const uint8_t lcdRows = 4;
