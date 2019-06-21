@@ -4,7 +4,7 @@
 const uint8_t wheelCircumferenceCm = 87;
 const uint32_t speedometerTimeoutMs = 5000ul;
 
-const uint8_t sensorPin = 3;
+const uint8_t wheelMarkSensorPin = 3;
 
 const uint8_t lcdColumns = 20;
 const uint8_t lcdRows = 4;
@@ -16,7 +16,7 @@ void printRow(uint8_t rowNumber, const char* format, ...);
 
 void setup()
 {
-    pinMode(sensorPin, INPUT);
+    pinMode(wheelMarkSensorPin, INPUT);
     lcd.begin();
     lcd.backlight();
     lcd.clear();
@@ -43,7 +43,7 @@ void loop()
     static uint16_t speed100mph = 0; // 100mph = 100 meters per hour
     static uint16_t maxSpeed100mph = 0;
     static uint32_t pauseStartTimestampMs = timestampMs;
-    if (detectStep())
+    if (detectWheelRevolution())
     {
         revolutionCount++;
 
@@ -105,13 +105,14 @@ void loop()
     }
 }
 
-bool current = true;
-bool detectStep()
-{  
-    bool previous = current;
-    current = digitalRead(sensorPin) == HIGH;
-    if (current != previous) delay(5);
-    return current && !previous;
+// returns true when wheel mark just appeared at sensor (was not at sensor in previous call but is there now)
+bool detectWheelRevolution()
+{
+    static bool isWheelMarkDetectedNow = false;
+    bool wasWheelMarkDetectedBefore = isWheelMarkDetectedNow;
+    isWheelMarkDetectedNow = digitalRead(wheelMarkSensorPin) == LOW;
+    if (isWheelMarkDetectedNow != wasWheelMarkDetectedBefore) delay(5); // poor man's debounce; sufficient for hamster wheel
+    return isWheelMarkDetectedNow && !wasWheelMarkDetectedBefore;
 }
 
 void printRow(uint8_t rowNumber, const char* format, ...)
