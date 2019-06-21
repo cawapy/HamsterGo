@@ -111,7 +111,7 @@ bool detectWheelRevolution()
     static bool isWheelMarkDetectedNow = false;
     bool wasWheelMarkDetectedBefore = isWheelMarkDetectedNow;
     isWheelMarkDetectedNow = digitalRead(wheelMarkSensorPin) == LOW;
-    if (isWheelMarkDetectedNow != wasWheelMarkDetectedBefore) delay(5); // poor man's debounce; sufficient for hamster wheel
+    if (isWheelMarkDetectedNow != wasWheelMarkDetectedBefore) delay(2); // poor man's debounce; sufficient for hamster wheel
     return isWheelMarkDetectedNow && !wasWheelMarkDetectedBefore;
 }
 
