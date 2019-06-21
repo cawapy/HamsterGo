@@ -45,20 +45,26 @@ void loop()
     static uint32_t pauseStartTimestampMs = timestampMs;
     if (detectStep())
     {
-        pauseStartTimestampMs = 0;
-
         revolutionCount++;
 
-        uint32_t revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
+        if (pauseStartTimestampMs)
+        {
+            pauseStartTimestampMs = 0;
+            hundredMetersPerHour = 0;
+        }
+        else
+        {
+            uint32_t revolutionDurationMs = timestampMs - lastRevolutionTimestampMs;
+            const uint32_t msPerHour = 1000ul * 60ul * 60ul;
+            const uint32_t cmPerHundredMeters = 10000ul;
+            hundredMetersPerHour = revolutionDurationMs
+                ? (wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters)
+                : 0;
+            maxSpeedHundredMetersPerHour = (hundredMetersPerHour > maxSpeedHundredMetersPerHour)
+                ? hundredMetersPerHour
+                : maxSpeedHundredMetersPerHour;
+        }
         lastRevolutionTimestampMs = timestampMs;
-        const uint32_t msPerHour = 1000ul * 60ul * 60ul;
-        const uint32_t cmPerHundredMeters = 10000ul;
-        hundredMetersPerHour = revolutionDurationMs
-            ? (wheelCircumferenceCm * msPerHour / revolutionDurationMs / cmPerHundredMeters)
-            : 0;
-        maxSpeedHundredMetersPerHour = (hundredMetersPerHour > maxSpeedHundredMetersPerHour)
-            ? hundredMetersPerHour
-            : maxSpeedHundredMetersPerHour;
 
         needUpdate = true;
     }
