@@ -83,13 +83,13 @@ void loop()
         printRow(0, "Runden: %12d", revolutionCount);
 
         uint16_t distanceCm = wheelCircumferenceCm * revolutionCount;
-        printRow(1, "Strecke: %6d.%02d m", distanceCm / 100, distanceCm % 100);
+        printRow(1, "Strecke: %6d,%02d m", distanceCm / 100, distanceCm % 100);
 
-        printRow(2, "Max-Tempo: %2d.%01d km/h", maxSpeedHundredMetersPerHour / 10, maxSpeedHundredMetersPerHour % 10);
+        printRow(2, "Max-Tempo: %2d,%01d km/h", maxSpeedHundredMetersPerHour / 10, maxSpeedHundredMetersPerHour % 10);
 
         if (hundredMetersPerHour != 0)
         {
-            printRow(3, "Tempo:     %2d.%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
+            printRow(3, "Tempo:     %2d,%01d km/h", hundredMetersPerHour / 10, hundredMetersPerHour % 10);
         }
         else
         {
